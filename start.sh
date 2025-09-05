@@ -16,36 +16,41 @@ echo "DATABASE_URL: $DATABASE_URL"
 
 # Usar python para parsear la URL de manera más confiable
 export PGPASSWORD=$(python3 -c "
+import os
 import urllib.parse
-url = '$DATABASE_URL'
+url = os.environ.get('DATABASE_URL', '')
 parsed = urllib.parse.urlparse(url)
 print(parsed.password or '')
 ")
 
 export PGHOST=$(python3 -c "
+import os
 import urllib.parse
-url = '$DATABASE_URL'
+url = os.environ.get('DATABASE_URL', '')
 parsed = urllib.parse.urlparse(url)
 print(parsed.hostname or '')
 ")
 
 export PGPORT=$(python3 -c "
+import os
 import urllib.parse
-url = '$DATABASE_URL'
+url = os.environ.get('DATABASE_URL', '')
 parsed = urllib.parse.urlparse(url)
 print(parsed.port or 5432)
 ")
 
 export PGDATABASE=$(python3 -c "
+import os
 import urllib.parse
-url = '$DATABASE_URL'
+url = os.environ.get('DATABASE_URL', '')
 parsed = urllib.parse.urlparse(url)
 print(parsed.path.lstrip('/') or '')
 ")
 
 export PGUSER=$(python3 -c "
+import os
 import urllib.parse
-url = '$DATABASE_URL'
+url = os.environ.get('DATABASE_URL', '')
 parsed = urllib.parse.urlparse(url)
 print(parsed.username or '')
 ")

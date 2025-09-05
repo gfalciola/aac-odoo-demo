@@ -11,7 +11,6 @@ USER odoo
 
 # Copiar archivos de configuración
 COPY ./config/odoo.conf /etc/odoo/odoo.conf
-COPY ./addons /mnt/extra-addons
 
 # Exponer puerto
 EXPOSE 8069

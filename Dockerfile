@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
 COPY ./config/odoo.conf /etc/odoo/odoo.conf
 COPY ./start.sh /start.sh
 
+# Copiar backup de la base de datos
+COPY ./demo-gf.dump /demo-gf.dump
+
 # Hacer ejecutable el script de inicio
 RUN chmod +x /start.sh
 

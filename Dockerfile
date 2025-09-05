@@ -13,4 +13,4 @@ USER odoo
 COPY ./config/odoo.conf /etc/odoo/odoo.conf
 
 # Exponer puerto
-EXPOSE 8069
+EXPOSE 10000

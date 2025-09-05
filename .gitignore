@@ -1,0 +1,40 @@
+# Archivos de configuración local
+*.log
+*.pid
+*.sock
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Archivos de Odoo
+filestore/
+sessions/
+*.db
+*.sqlite3
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Archivos de backup (excepto el que necesitamos)
+*.dump
+!demo-gf.dump/
+
+# Archivos de configuración sensibles
+.env
+.env.local

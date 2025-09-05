@@ -11,12 +11,44 @@ fi
 
 echo "DATABASE_URL configurada correctamente"
 
-# Extraer componentes de la URL de la base de datos
-export PGPASSWORD=$(echo $DATABASE_URL | sed -n 's/.*:\/\/[^:]*:\([^@]*\)@.*/\1/p')
-export PGHOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\):.*/\1/p')
-export PGPORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
-export PGDATABASE=$(echo $DATABASE_URL | sed -n 's/.*\/\([^?]*\).*/\1/p')
-export PGUSER=$(echo $DATABASE_URL | sed -n 's/.*:\/\/\([^:]*\):.*/\1/p')
+# Extraer componentes de la URL de la base de datos usando un método más robusto
+echo "DATABASE_URL: $DATABASE_URL"
+
+# Usar python para parsear la URL de manera más confiable
+export PGPASSWORD=$(python3 -c "
+import urllib.parse
+url = '$DATABASE_URL'
+parsed = urllib.parse.urlparse(url)
+print(parsed.password or '')
+")
+
+export PGHOST=$(python3 -c "
+import urllib.parse
+url = '$DATABASE_URL'
+parsed = urllib.parse.urlparse(url)
+print(parsed.hostname or '')
+")
+
+export PGPORT=$(python3 -c "
+import urllib.parse
+url = '$DATABASE_URL'
+parsed = urllib.parse.urlparse(url)
+print(parsed.port or 5432)
+")
+
+export PGDATABASE=$(python3 -c "
+import urllib.parse
+url = '$DATABASE_URL'
+parsed = urllib.parse.urlparse(url)
+print(parsed.path.lstrip('/') or '')
+")
+
+export PGUSER=$(python3 -c "
+import urllib.parse
+url = '$DATABASE_URL'
+parsed = urllib.parse.urlparse(url)
+print(parsed.username or '')
+")
 
 echo "Conectando a: $PGHOST:$PGPORT/$PGDATABASE como $PGUSER"
 

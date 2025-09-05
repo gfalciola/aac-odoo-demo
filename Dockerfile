@@ -11,6 +11,13 @@ USER odoo
 
 # Copiar archivos de configuración
 COPY ./config/odoo.conf /etc/odoo/odoo.conf
+COPY ./start.sh /start.sh
+
+# Hacer ejecutable el script de inicio
+RUN chmod +x /start.sh
 
 # Exponer puerto
 EXPOSE 10000
+
+# Usar script de inicio personalizado
+CMD ["/start.sh"]

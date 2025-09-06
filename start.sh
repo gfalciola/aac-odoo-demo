@@ -63,5 +63,9 @@ export PASSWORD="$PGPASSWORD"
 
 echo "Iniciando Odoo Community Edition..."
 
+# Limpiar assets CSS existentes para forzar regeneración
+echo "Limpiando assets CSS existentes..."
+rm -rf /var/lib/odoo/filestore/*/ir_attachment/attachment_* 2>/dev/null || true
+
 # Iniciar Odoo con las variables de entorno configuradas
 exec odoo

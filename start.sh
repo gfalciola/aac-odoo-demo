@@ -57,11 +57,15 @@ print(parsed.username or '')
 
 echo "Conectando a: $PGHOST:$PGPORT/$PGDATABASE como $PGUSER"
 
-# Verificar si la base de datos ya existe y tiene datos
-DB_EXISTS=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | tr -d ' ')
+# Verificar si la base de datos ya tiene las tablas de Odoo
+ODOO_INITIALIZED=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT 1 FROM pg_tables WHERE tablename = 'ir_module_module';" 2>/dev/null | tr -d ' ')
 
-if [ "$DB_EXISTS" = "0" ] || [ -z "$DB_EXISTS" ]; then
-    echo "Base de datos vacía o no existe. Restaurando backup..."
+if [ -z "$ODOO_INITIALIZED" ]; then
+    echo "Base de datos no inicializada con Odoo. Restaurando backup..."
+    
+    # Limpiar la base de datos completamente
+    echo "Limpiando base de datos existente..."
+    PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" 2>/dev/null
     
     # Restaurar dump si existe
     if [ -f "/demo-gf.dump/dump.sql" ]; then
@@ -85,7 +89,7 @@ if [ "$DB_EXISTS" = "0" ] || [ -z "$DB_EXISTS" ]; then
         fi
     fi
 else
-    echo "Base de datos ya contiene datos. Saltando restauración."
+    echo "Base de datos ya inicializada con Odoo. Saltando restauración."
 fi
 
 # Iniciar Odoo

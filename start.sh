@@ -63,9 +63,14 @@ export PASSWORD="$PGPASSWORD"
 
 echo "Iniciando Odoo Community Edition..."
 
-# Limpiar assets CSS existentes para forzar regeneración
-echo "Limpiando assets CSS existentes..."
+# Limpiar completamente todos los assets y caché
+echo "Limpiando assets y caché existentes..."
 rm -rf /var/lib/odoo/filestore/*/ir_attachment/attachment_* 2>/dev/null || true
+rm -rf /var/lib/odoo/sessions/* 2>/dev/null || true
+rm -rf /var/lib/odoo/addons/17.0/*/static/src/css/* 2>/dev/null || true
+
+# Crear directorio de assets si no existe
+mkdir -p /var/lib/odoo/filestore 2>/dev/null || true
 
 # Iniciar Odoo con las variables de entorno configuradas
 exec odoo

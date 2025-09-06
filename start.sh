@@ -63,37 +63,34 @@ ODOO_INITIALIZED=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$
 
 echo "Resultado de verificación: '$ODOO_INITIALIZED'"
 
-# Forzar restauración si no hay resultado o si hay algún problema
-if [ -z "$ODOO_INITIALIZED" ] || [ "$ODOO_INITIALIZED" != "1" ]; then
-    echo "Base de datos no inicializada con Odoo. Restaurando backup..."
+# TEMPORAL: Forzar restauración siempre para debug
+echo "FORZANDO RESTAURACIÓN PARA DEBUG..."
+echo "Base de datos no inicializada con Odoo. Restaurando backup..."
     
-    # Limpiar la base de datos completamente
-    echo "Limpiando base de datos existente..."
-    PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" 2>/dev/null
+# Limpiar la base de datos completamente
+echo "Limpiando base de datos existente..."
+PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" 2>/dev/null
     
-    # Restaurar dump si existe
-    if [ -f "/demo-gf.dump/dump.sql" ]; then
-        echo "Restaurando dump de la base de datos..."
-        PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "/demo-gf.dump/dump.sql"
-        if [ $? -eq 0 ]; then
-            echo "✅ Base de datos restaurada exitosamente"
-        else
-            echo "❌ Error al restaurar la base de datos"
-        fi
+# Restaurar dump si existe
+if [ -f "/demo-gf.dump/dump.sql" ]; then
+    echo "Restaurando dump de la base de datos..."
+    PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "/demo-gf.dump/dump.sql"
+    if [ $? -eq 0 ]; then
+        echo "✅ Base de datos restaurada exitosamente"
+    else
+        echo "❌ Error al restaurar la base de datos"
     fi
-    
-    # Copiar filestore si existe
-    if [ -d "/demo-gf.dump/filestore" ]; then
-        echo "Copiando archivos del filestore..."
-        cp -r /demo-gf.dump/filestore/* /var/lib/odoo/filestore/ 2>/dev/null
-        if [ $? -eq 0 ]; then
-            echo "✅ Filestore copiado exitosamente"
-        else
-            echo "❌ Error al copiar el filestore"
-        fi
+fi
+
+# Copiar filestore si existe
+if [ -d "/demo-gf.dump/filestore" ]; then
+    echo "Copiando archivos del filestore..."
+    cp -r /demo-gf.dump/filestore/* /var/lib/odoo/filestore/ 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo "✅ Filestore copiado exitosamente"
+    else
+        echo "❌ Error al copiar el filestore"
     fi
-else
-    echo "Base de datos ya inicializada con Odoo. Saltando restauración."
 fi
 
 # Iniciar Odoo

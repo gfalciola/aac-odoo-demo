@@ -58,9 +58,13 @@ print(parsed.username or '')
 echo "Conectando a: $PGHOST:$PGPORT/$PGDATABASE como $PGUSER"
 
 # Verificar si la base de datos ya tiene las tablas de Odoo
+echo "Verificando si la base de datos está inicializada con Odoo..."
 ODOO_INITIALIZED=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT 1 FROM pg_tables WHERE tablename = 'ir_module_module';" 2>/dev/null | tr -d ' ')
 
-if [ -z "$ODOO_INITIALIZED" ]; then
+echo "Resultado de verificación: '$ODOO_INITIALIZED'"
+
+# Forzar restauración si no hay resultado o si hay algún problema
+if [ -z "$ODOO_INITIALIZED" ] || [ "$ODOO_INITIALIZED" != "1" ]; then
     echo "Base de datos no inicializada con Odoo. Restaurando backup..."
     
     # Limpiar la base de datos completamente

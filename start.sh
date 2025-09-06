@@ -74,7 +74,10 @@ mkdir -p /var/lib/odoo/filestore 2>/dev/null || true
 
 # Forzar regeneración de assets eliminando la base de datos problemática
 echo "Eliminando base de datos problemática para forzar recreación..."
+export PGPASSWORD="$PGPASSWORD"
+psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'aac_demo';" 2>/dev/null || true
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -c "DROP DATABASE IF EXISTS aac_demo;" 2>/dev/null || true
+echo "Base de datos aac_demo eliminada (si existía)"
 
 # Iniciar Odoo con las variables de entorno configuradas
 exec odoo

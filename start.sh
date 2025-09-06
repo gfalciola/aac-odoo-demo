@@ -77,6 +77,19 @@ if [ -f "/demo-gf.dump/dump.sql" ]; then
     PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "/demo-gf.dump/dump.sql"
     if [ $? -eq 0 ]; then
         echo "✅ Base de datos restaurada exitosamente"
+        
+        # Verificar qué tablas se crearon
+        echo "Verificando tablas creadas..."
+        TABLES_COUNT=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | tr -d ' ')
+        echo "Total de tablas creadas: $TABLES_COUNT"
+        
+        # Verificar si existe la tabla ir_module_module
+        IR_MODULE_EXISTS=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT 1 FROM pg_tables WHERE tablename = 'ir_module_module';" 2>/dev/null | tr -d ' ')
+        echo "Tabla ir_module_module existe: $IR_MODULE_EXISTS"
+        
+        # Verificar si existe la tabla res_lang
+        RES_LANG_EXISTS=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT 1 FROM pg_tables WHERE tablename = 'res_lang';" 2>/dev/null | tr -d ' ')
+        echo "Tabla res_lang existe: $RES_LANG_EXISTS"
     else
         echo "❌ Error al restaurar la base de datos"
     fi

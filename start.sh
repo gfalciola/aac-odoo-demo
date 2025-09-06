@@ -74,6 +74,15 @@ PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATA
 # Restaurar dump si existe
 if [ -f "/demo-gf.dump/dump.sql" ]; then
     echo "Restaurando dump de la base de datos..."
+    
+    # Verificar el tamaño del archivo dump
+    DUMP_SIZE=$(ls -lh /demo-gf.dump/dump.sql | awk '{print $5}')
+    echo "Tamaño del archivo dump: $DUMP_SIZE"
+    
+    # Verificar las primeras líneas del dump para ver qué contiene
+    echo "Primeras 10 líneas del dump:"
+    head -10 /demo-gf.dump/dump.sql
+    
     PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "/demo-gf.dump/dump.sql"
     if [ $? -eq 0 ]; then
         echo "✅ Base de datos restaurada exitosamente"
@@ -82,6 +91,10 @@ if [ -f "/demo-gf.dump/dump.sql" ]; then
         echo "Verificando tablas creadas..."
         TABLES_COUNT=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | tr -d ' ')
         echo "Total de tablas creadas: $TABLES_COUNT"
+        
+        # Listar algunas tablas para ver qué se creó
+        echo "Primeras 20 tablas creadas:"
+        PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT tablename FROM information_schema.tables WHERE table_schema = 'public' ORDER BY tablename LIMIT 20;" 2>/dev/null
         
         # Verificar si existe la tabla ir_module_module
         IR_MODULE_EXISTS=$(PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT 1 FROM pg_tables WHERE tablename = 'ir_module_module';" 2>/dev/null | tr -d ' ')
@@ -93,6 +106,10 @@ if [ -f "/demo-gf.dump/dump.sql" ]; then
     else
         echo "❌ Error al restaurar la base de datos"
     fi
+else
+    echo "❌ Archivo dump.sql no encontrado en /demo-gf.dump/"
+    echo "Archivos disponibles en /demo-gf.dump/:"
+    ls -la /demo-gf.dump/ 2>/dev/null || echo "Directorio no existe"
 fi
 
 # Copiar filestore si existe
